@@ -8,6 +8,22 @@ function dir(a){
     console.dir(a)
 }
 
+Modernizr.load([{
+    test: Modernizr.filereader,
+    nope : ['js/jquery-ui/jquery-ui-position.js', 'js/filereader/jquery.FileReader.js', 'js/swfobject/swfobject.js' ],
+    complete : function(){
+        if (!Modernizr.filereader){
+            log('filereader not supported')
+            $('input[type=file]').fileReader({
+                id : 'fileReaderSWF',
+                filereader : 'js/filereader/filereader.swf',
+                expressInstall : 'js/swfobject/expressInstall.swf',
+                debugMode : true
+            })
+        }
+    }
+}])
+
 function Uploader(self){
     this.input = self
     this.file = self.files[0]
@@ -84,20 +100,36 @@ Uploader.prototype.clearMedia = function(){ // clears selected media and resets 
 
 Uploader.prototype.disableOthers = function(self){ // disables other media inputs after user chooses one for upload
     log('disabling others')
-    $notSelected = $('input[type=file]').not(self)
+    var $notSelected = $('input[type=file]').not(self)
     $notSelected.parent().addClass('disabled')
     $notSelected.prop('disabled', true)
 }
 
+Uploader.prototype.read = function(){
+    dir(this.reader)
+    //if (Modernizr.filereader){
+    //    return base64Mixin(this)
+    //} else {
+    //    return false
+    //}
+}
+
 Uploader.prototype.init = function(){
     log('initializing uplaoder')
-    app.loader.classList.add('begin')
     if (!this.sizeCheck(this.file)){
         log('file too big')
         app.loader.classList.remove('begin')
         return false
     } 
+    // disabled for IE
+    // app.loader.classList.add('begin')
     this.disableOthers(this.input)
+    log('checking for FileReader support')
+    if (!Modernizr.filereader){
+        polyfillMixin.call(this)
+    } 
+    else { log('supported')}
+    
     return true
 }
 
@@ -119,36 +151,38 @@ ImageUploader.prototype.init = function(){
     if (!Uploader.prototype.init.call(this)){
         return false
     }
-    self = this
-    self.reader = new FileReader()
+    var self = this
+    var r = self.reader = self.reader || new FileReader()
     self.image = new Image()
-    self.reader.onload = function(event) {
+
+    $(r).on('load', function(event) {
         self.image.src = event.target.result
-    }
-    self.reader.onloadend = function() {
+        log('ImageUploader.prototype reader load event')
+    })
+    $(r).on('loadend', function() {
         app.loader.classList.remove('begin')
-    }
+        log('ImageUploader.prototype reader loadend event')
+    })
+
     self.image.onload = function(){
         self.imagePreview(this)
     }
-    self.reader.readAsDataURL(this.file)
+    r.readAsDataURL(this.file)
 }
 
-function PostUploader(self){
-   Uploader.call(this,self) 
+function polyfillMixin(){
+    var r = this.reader = this.reader || new FileReader()
+    $(r).on('load', function(e){
+        log('load event edited by polyfillMixin')
+    })
+    $(r).on('loadend', function(e){
+        log('loadend event edited by polyfillMixin')
+    })
+    if (!(this instanceof ImageUploader)){
+        r.readAsDataURL(this.file)
+    }
 }
 
-PostUploader.prototype = Object.create(Uploader.prototype)
-
-function PostImageUploader(self){
-    ImageUploader.call(this, self)
-}
-
-PostImageUploader.prototype = Object.create(ImageUploader.prototype)
-PostImageUploader.prototype.init = function(){
-    ImageUploader.prototype.init.call(this)
-    $(this.reader).on('load',function(e){ log('adding but not replacing')})
-}
 app = {
     $sizeEl : $('<span/>').addClass('size').attr('id','size'),
     $clearButton : $('<button/>').attr({'class':'clear','id':'clear','type':'button'}).html('Clear'), // user-intent to clear current inputs
@@ -186,16 +220,19 @@ app = {
         
     }
 }
+var evt;
 $(function(){
     log('loaded')
     
     $('.upload-buttons').change('input',function(e){ 
         log('change event called')
         log('creating new uploader')
-        if (e.target.accept.match("image/*")){
-            uploader = new PostImageUploader(e.target)
+        evt = e
+        if (e.target.files[0].type.match("image/*")){
+            uploader = new ImageUploader(e.target)
         } else {
             uploader = new Uploader(e.target) 
+            //uploader.reader.readAsDataURL(uploader.file)
         }
         uploader.init()
     })
