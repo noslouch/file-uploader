@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="css/screen.css" />
+    
+    <script src="js/custom.modernizr.js" type="text/javascript"></script>
+</head>
+<body>
+    <form class="post-form" enctype="multipart/form-data" id="post-form" action="post.php" method="post">
+        <div class="preview" id="preview">
+            <div class="thumb"></div> <!-- .thumb -->
+            <div class="specs"></div> <!-- .specs -->
+        </div> <!-- .preview -->
+        <input class="post-text" id="post-text" name="post-text" placeholder="What's up?" required="" type="text" />
+        
+        <div class="upload-buttons">
+            <div class="disabled">
+                <input accept="image/*" class="photo-input" id="photo-input" name="image" type="file">
+                <!-- <button class="attach-media photo-select"><span class="visuallyhidden"></span></button> -->
+            </div>
+            <div class="disabled">
+                <input accept="video/*" class="video-input" id="video-input" name="video" type="file">
+                <!-- <button class="attach-media video-select"><span class="visuallyhidden"></span></button> -->
+            </div>
+            <div class="disabled">
+                <input accept="audio/*" class="audio-input" id="audio-input" name="audio" type="file">
+                <!-- <button class="attach-media audio-select"><span class="visuallyhidden"></span></button> -->
+            </div>
+        </div> <!-- .upload-buttons -->
+        <span class="loading" id="loading"></span> <!-- .loading -->
+        <input id="submitBtn" disabled="" type="submit" class="submit-post" value="Post">
+    </form> <!-- .post-form -->
+
+    <script src="js/jquery.js" type="text/javascript"></script>
+    <script src="js/main.js" type="text/javascript"></script>
+</body>
+</html>
