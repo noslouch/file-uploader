@@ -77,21 +77,21 @@ Uploader.prototype.showSpecs = function(size){ // injects file name and size int
     log('showSpecs: display file specs in DOM')
     app.$sizeEl.text(size).prependTo('.specs')
     app.$nameEl.text(this.file.name + ': ').prependTo('.specs')
-    app.$preview.append(app.$clearButton)
+    $(app.preview).append(app.$clearButton)
 }
 
 Uploader.prototype.clearMedia = function(){ // clears selected media and resets file inputs for new selection
-    app.$preview.find('img, #size, #filename').remove()
+    $(app.preview).find('img, #size, #filename').remove()
     
     if (!!app.oldInputs) {
         $(app.oldInputs).remove()
     }
     if (!!app.oldPhoto) {
         // Regular Post
-        app.$preview.append(oldPhoto)   
+        $(app.preview).append(oldPhoto)   
     } else {
         // Profile setup
-        app.$preview.removeClass('loaded')
+        $(app.preview).removeClass('loaded')
     }
     var $inputs = $('input[type=file]')
     $inputs.val('').prop('disabled', false)
@@ -125,7 +125,7 @@ Uploader.prototype.init = function(){
     // app.loader.classList.add('begin')
     this.disableOthers(this.input)
     log('checking for FileReader support')
-    if (!Modernizr.filereader){
+    if (Modernizr.filereader){
         polyfillMixin.call(this)
     } 
     else { log('supported')}
@@ -140,11 +140,11 @@ function ImageUploader(self){
 ImageUploader.prototype = Object.create(Uploader.prototype)
 
 ImageUploader.prototype.imagePreview = function(img){ // injects image preview into DOM
-    app.$preview.find('.thumb').prepend(img)
-    if (!!$('.full-profile').length){
-        app.$clearButton.html('Revert')
-    }
-    app.$preview.addClass('loaded')
+    $(app.preview).find('.thumb').prepend(img)
+    //if (!!$('.full-profile').length){
+    //    app.$clearButton.html('Revert')
+    //}
+    $(app.preview).addClass('loaded')
 }
 
 ImageUploader.prototype.init = function(){
@@ -171,13 +171,47 @@ ImageUploader.prototype.init = function(){
 }
 
 function polyfillMixin(){
+    var self = this
     var r = this.reader = this.reader || new FileReader()
+    var props = {}
+    props['name'] = self.file.name
+    props['type'] = self.file.type
+    props['size'] = self.file.size
+
+     function prepInputs(file, input){    
+        log('inside prepInputs')
+        app.oldInputs = []
+        var name = input.name
+        log('setting up inputs')
+        
+        log('looping through')
+        for (prop in props) {
+            var toPHP = document.createElement('input')
+            if (props.hasOwnProperty(prop)) {
+                log('testing: ' + prop)
+                log('name: ' + name)
+                log('props object: ')
+                dir(props)
+                dir(app.form)
+                toPHP.type = 'hidden'
+                toPHP.name = name + '['+prop+']'
+                toPHP.value = props[prop]
+                app.form.appendChild(toPHP)
+                app.oldInputs.push(toPHP)
+            }
+        }
+        return app.oldInputs
+    }
+
     $(r).on('load', function(e){
         log('load event edited by polyfillMixin')
+        props.data = e.target.result
     })
     $(r).on('loadend', function(e){
         log('loadend event edited by polyfillMixin')
+        prepInputs(this.file, self.input)
     })
+    
     if (!(this instanceof ImageUploader)){
         r.readAsDataURL(this.file)
     }
@@ -187,56 +221,26 @@ app = {
     $sizeEl : $('<span/>').addClass('size').attr('id','size'),
     $clearButton : $('<button/>').attr({'class':'clear','id':'clear','type':'button'}).html('Clear'), // user-intent to clear current inputs
     $nameEl : $('<span/>').addClass('filename').attr('id','filename'),
-    $preview : $('.preview'),
+    preview : document.getElementById('preview'),
     loader : document.getElementById('loading'),
-    polyfillReader : function(file){  // used by native FileReader
-        var reader = new FileReader()
-        if (file.type.match('image')){
-            var image = new Image()
-            reader.onload = function(event) {
-                props.data = event.target.result // sending data via POST
-                image.src = event.target.result
-            }
-            image.onload = function(){
-                updatePreview(this)
-            }
-            reader.onloadend = function(){ // sending data via POST
-                prepInputs(file, self)
-                $('.loading').removeClass('begin')
-            }
-        } else {
-            reader.onload = function(event) {
-                updatePreview()
-                props.data = event.target.result // sending data via POST
-            }
-            reader.onloadend = function(){ // sending data via POST
-                prepInputs(file, self)
-                $('.loading').removeClass('begin')
-            }
-        }
-        return reader
-    }, 
-    init : function(file){ //do stuff, called on change event, passed file
-        
-    }
+    form : document.getElementById('post-form'),
+    oldInputs: []
 }
-var evt;
 $(function(){
     log('loaded')
     
     $('.upload-buttons').change('input',function(e){ 
         log('change event called')
         log('creating new uploader')
-        evt = e
         if (e.target.files[0].type.match("image/*")){
             uploader = new ImageUploader(e.target)
         } else {
             uploader = new Uploader(e.target) 
-            //uploader.reader.readAsDataURL(uploader.file)
         }
         uploader.init()
     })
-    $('#preview').click('#clear', function(evt){
+
+    $(app.preview).click('#clear', function(evt){
         try {
             uploader.clearMedia(app.oldPhoto)
         } catch(e){
@@ -244,4 +248,5 @@ $(function(){
         }
         $(evt.target).detach()
     })
+
 })    
