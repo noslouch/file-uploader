@@ -24,9 +24,13 @@ Modernizr.load([{
     }
 }])
 
-function Uploader(self){
-    this.input = self
-    this.file = self.files[0]
+function Uploader(e){
+    this.file = e.files[0]
+    if (!Modernizr.filereader){
+        polyfillMixin.call(this, e)
+    }  else { 
+        this.input = e
+    }
 }
 
 Uploader.prototype.sizeCheck = function(){ //compares filesize to limits
@@ -81,6 +85,11 @@ Uploader.prototype.showSpecs = function(size){ // injects file name and size int
 }
 
 Uploader.prototype.clearMedia = function(){ // clears selected media and resets file inputs for new selection
+    var $inputs = $('input[type=file]')
+
+    $inputs.val('').prop('disabled', false)
+    $inputs.parent().removeClass('disabled')
+
     $(app.preview).find('img, #size, #filename').remove()
     
     if (!!app.oldInputs) {
@@ -93,9 +102,6 @@ Uploader.prototype.clearMedia = function(){ // clears selected media and resets 
         // Profile setup
         $(app.preview).removeClass('loaded')
     }
-    var $inputs = $('input[type=file]')
-    $inputs.val('').prop('disabled', false)
-    $inputs.parent().removeClass('disabled')
 }
 
 Uploader.prototype.disableOthers = function(self){ // disables other media inputs after user chooses one for upload
@@ -105,30 +111,16 @@ Uploader.prototype.disableOthers = function(self){ // disables other media input
     $notSelected.prop('disabled', true)
 }
 
-Uploader.prototype.read = function(){
-    dir(this.reader)
-    //if (Modernizr.filereader){
-    //    return base64Mixin(this)
-    //} else {
-    //    return false
-    //}
-}
-
 Uploader.prototype.init = function(){
     log('initializing uplaoder')
     if (!this.sizeCheck(this.file)){
         log('file too big')
-        app.loader.classList.remove('begin')
+        $(app.loader).removeClass('begin')
         return false
     } 
-    // disabled for IE
-    // app.loader.classList.add('begin')
+    $(app.loader).addClass('begin')
     this.disableOthers(this.input)
     log('checking for FileReader support')
-    if (Modernizr.filereader){
-        polyfillMixin.call(this)
-    } 
-    else { log('supported')}
     
     return true
 }
@@ -170,37 +162,31 @@ ImageUploader.prototype.init = function(){
     r.readAsDataURL(this.file)
 }
 
-function polyfillMixin(){
-    var self = this
-    var r = this.reader = this.reader || new FileReader()
+function polyfillMixin(e){
+    var uploader = this
+    var file = uploader.file
+    this.input = document.getElementsByName(file.input)
+    var inputName = file.input
+    var r = uploader.reader = uploader.reader || new FileReader()
     var props = {}
-    props['name'] = self.file.name
-    props['type'] = self.file.type
-    props['size'] = self.file.size
 
-     function prepInputs(file, input){    
-        log('inside prepInputs')
+    props['name'] = file.name
+    props['type'] = file.type
+    props['size'] = file.size
+
+    function attachFile(){    
         app.oldInputs = []
-        var name = input.name
-        log('setting up inputs')
         
-        log('looping through')
         for (prop in props) {
             var toPHP = document.createElement('input')
             if (props.hasOwnProperty(prop)) {
-                log('testing: ' + prop)
-                log('name: ' + name)
-                log('props object: ')
-                dir(props)
-                dir(app.form)
                 toPHP.type = 'hidden'
-                toPHP.name = name + '['+prop+']'
+                toPHP.name = inputName + '['+prop+']'
                 toPHP.value = props[prop]
                 app.form.appendChild(toPHP)
                 app.oldInputs.push(toPHP)
             }
         }
-        return app.oldInputs
     }
 
     $(r).on('load', function(e){
@@ -209,7 +195,7 @@ function polyfillMixin(){
     })
     $(r).on('loadend', function(e){
         log('loadend event edited by polyfillMixin')
-        prepInputs(this.file, self.input)
+        attachFile()
     })
     
     if (!(this instanceof ImageUploader)){
@@ -227,20 +213,19 @@ app = {
     oldInputs: []
 }
 $(function(){
-    log('loaded')
     
-    $('.upload-buttons').change('input',function(e){ 
+    $('.upload-buttons').on('change', null, function(e){ 
         log('change event called')
         log('creating new uploader')
         if (e.target.files[0].type.match("image/*")){
             uploader = new ImageUploader(e.target)
         } else {
-            uploader = new Uploader(e.target) 
+            uploader = new Uploader(e.target)
         }
         uploader.init()
     })
 
-    $(app.preview).click('#clear', function(evt){
+    $(app.preview).on('click', '#clear', function(evt){
         try {
             uploader.clearMedia(app.oldPhoto)
         } catch(e){
