@@ -28,7 +28,7 @@ function dir(a){
     console.dir(a)
 }
 
-// helpful variables
+// helpful variables and DOM caching
 app = {
     // these four elements are used with image previews
     $sizeEl : $('<span/>').addClass('size').attr('id','size'),
@@ -61,7 +61,7 @@ app = {
 
 Modernizr.load([{
     test: Modernizr.filereader,
-    nope : ['js/jquery-ui/jquery-ui-position.js', 'js/filereader/jquery.FileReader.js', 'js/swfobject/swfobject.js' ],
+    nope : ['js/lib/jquery-ui/jquery-ui-position.js', 'js/lib/filereader/jquery.FileReader.js', 'js/lib/swfobject/swfobject.js' ],
     complete : function(){
         $(app.loader).addClass('begin')
 
@@ -70,9 +70,9 @@ Modernizr.load([{
 
             app.$inputs.fileReader({
                 id : 'fileReaderSWF',
-                filereader : 'js/filereader/filereader.swf',
-                expressInstall : 'js/swfobject/expressInstall.swf',
-                debugMode : true,
+                filereader : 'js/lib/filereader/filereader.swf',
+                expressInstall : 'js/lib/swfobject/expressInstall.swf',
+                debugMode : false,
                 callback : app.init
             })
         } else {
