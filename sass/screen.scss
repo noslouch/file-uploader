@@ -3,6 +3,131 @@
  * Import this file using the following HTML or equivalent:
  * <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" /> */
 
+@import "compass";
 @import "compass/reset";
 @import "h5bp";
 @include h5bp-helpers;
+@import url(http://weloveiconfonts.com/api/?family=entypo);
+
+$purple: #60128f;
+$light-purple: #8f46c4;
+$white: #f5f5f5;
+$black: #333;
+$light-gray: #dedede;
+$medium-gray: #bcbcbc;
+$dark-gray: #909090;
+
+@mixin disabled {
+    @include background-image(linear-gradient(#fff #d0d0d0));
+    color: #666;
+    cursor:not-allowed; 
+}
+
+@mixin file-blanket { // FILE TYPES COVER THEIR PRETTY LINK SIBLINGS ON OLDER BROWSER THAT DON'T SUPPORT FILE API
+    position: absolute;
+    opacity: 0;
+    filter: alpha(opacity=0);
+    -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+    zoom: 1;
+    height: 100%;
+    width: 100%;
+    clip:auto;
+    cursor:pointer;
+}
+
+*,
+*:before,
+*:after { @include box-sizing(border-box); }
+
+body {background: $dark-gray;}
+.page {width: 100%; max-width: 67.5em; padding: 1em;}
+.preview { width: 50%; }
+img { max-width: 100%; height: auto;}
+
+.post-text {
+    width: 100%;
+    font-size: 1.5em;
+    padding: 0.25em;
+    margin: 0.5em auto;
+}
+.upload-buttons {
+    width: 100%;
+    > div { position: relative; width: 33.333333%; float: left;}
+}
+
+.disabled {
+    @include disabled;        
+    cursor: not-allowed;
+    button {
+        color: $black; cursor:not-allowed;
+        &:active,
+        &:focus,
+        &.open {
+            background:none;}
+    }
+    button:hover {color:$black;}
+}    
+
+
+.attach-media {
+    @include appearance(none); 
+    //background: #f2f2f2;
+    //background: rgba(255,255,255,0.8);
+    @include background-image(linear-gradient(rgba(255,255,255,0.0), #dedede));
+    border: none;
+    display: block;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    color: $purple;
+    text-align: center;
+    @include adjust-font-size-to(35px);
+    @include single-transition($property:color, $duration:250ms);
+    
+    &:hover {
+        color: $dark-gray;
+    }
+    
+    &:active,
+    &:focus,
+    &.open {
+        @include background-image(linear-gradient(#5c0f9c, #954bca));
+        color: $black;
+    }
+        
+    &:before {
+        font-family: 'entypo', sans-serif;
+        display:inline-block;content:'';
+    }
+    
+    &.photo:before {
+        content: "\1f304";
+    }
+    &.video:before {
+        content: "\1f3ac";
+    }
+    &.audio:before {
+        content:"\266a"; 
+    }
+}
+
+.loading { 
+    display: inline-block; 
+    position: relative;
+    top: 10px;
+    background: url(../img/loading.gif) no-repeat; 
+    height: 32px; 
+    width: 32px;
+    opacity: 0;
+    @include single-transition;
+    
+    &.begin {
+        opacity: 1;
+    }
+}
+
+.no-formvalidation {
+    & .upload-buttons input {
+        @include file-blanket;
+    }
+}

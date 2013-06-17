@@ -1,3 +1,4 @@
+@import url(http://weloveiconfonts.com/api/?family=entypo);
 /* Welcome to Compass.
  * In this file you should write your main styles. (or centralize your imports)
  * Import this file using the following HTML or equivalent:
@@ -108,4 +109,146 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
 }
 .clearfix {
   *zoom: 1;
+}
+
+*,
+*:before,
+*:after {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+body {
+  background: #909090;
+}
+
+.page {
+  width: 100%;
+  max-width: 67.5em;
+  padding: 1em;
+}
+
+.preview {
+  width: 50%;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+.post-text {
+  width: 100%;
+  font-size: 1.5em;
+  padding: 0.25em;
+  margin: 0.5em auto;
+}
+
+.upload-buttons {
+  width: 100%;
+}
+.upload-buttons > div {
+  position: relative;
+  width: 33.333333%;
+  float: left;
+}
+
+.disabled {
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ffffff), color-stop(100%, #d0d0d0));
+  background-image: -webkit-linear-gradient(#ffffff, #d0d0d0);
+  background-image: -moz-linear-gradient(#ffffff, #d0d0d0);
+  background-image: -o-linear-gradient(#ffffff, #d0d0d0);
+  background-image: linear-gradient(#ffffff, #d0d0d0);
+  color: #666;
+  cursor: not-allowed;
+  cursor: not-allowed;
+}
+.disabled button {
+  color: #333333;
+  cursor: not-allowed;
+}
+.disabled button:active, .disabled button:focus, .disabled button.open {
+  background: none;
+}
+.disabled button:hover {
+  color: #333333;
+}
+
+.attach-media {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, rgba(255, 255, 255, 0)), color-stop(100%, #dedede));
+  background-image: -webkit-linear-gradient(rgba(255, 255, 255, 0), #dedede);
+  background-image: -moz-linear-gradient(rgba(255, 255, 255, 0), #dedede);
+  background-image: -o-linear-gradient(rgba(255, 255, 255, 0), #dedede);
+  background-image: linear-gradient(rgba(255, 255, 255, 0), #dedede);
+  border: none;
+  display: block;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  color: #60128f;
+  text-align: center;
+  font-size: 2.1875em;
+  line-height: 1.37143em;
+  -webkit-transition: color 250ms;
+  -moz-transition: color 250ms;
+  -o-transition: color 250ms;
+  transition: color 250ms;
+}
+.attach-media:hover {
+  color: #909090;
+}
+.attach-media:active, .attach-media:focus, .attach-media.open {
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #5c0f9c), color-stop(100%, #954bca));
+  background-image: -webkit-linear-gradient(#5c0f9c, #954bca);
+  background-image: -moz-linear-gradient(#5c0f9c, #954bca);
+  background-image: -o-linear-gradient(#5c0f9c, #954bca);
+  background-image: linear-gradient(#5c0f9c, #954bca);
+  color: #333333;
+}
+.attach-media:before {
+  font-family: "entypo", sans-serif;
+  display: inline-block;
+  content: '';
+}
+.attach-media.photo:before {
+  content: "\1f304";
+}
+.attach-media.video:before {
+  content: "\1f3ac";
+}
+.attach-media.audio:before {
+  content: "\266a";
+}
+
+.loading {
+  display: inline-block;
+  position: relative;
+  top: 10px;
+  background: url(../img/loading.gif) no-repeat;
+  height: 32px;
+  width: 32px;
+  opacity: 0;
+  -webkit-transition: all 1s;
+  -moz-transition: all 1s;
+  -o-transition: all 1s;
+  transition: all 1s;
+}
+.loading.begin {
+  opacity: 1;
+}
+
+.no-formvalidation .upload-buttons input {
+  position: absolute;
+  opacity: 0;
+  filter: alpha(opacity=0);
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  zoom: 1;
+  height: 100%;
+  width: 100%;
+  clip: auto;
+  cursor: pointer;
 }
